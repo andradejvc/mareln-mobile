@@ -7,10 +7,21 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "plugins": ["expo-router"],
-    "experiments": { "typedRoutes": false },
-    "web": { "bundler": "metro" },
-    "android": { "package": "br.com.mareln.mobile" },
-    "ios": { "bundleIdentifier": "br.com.mareln.mobile" }
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "android": {
+      "package": "br.com.mareln.mobile"
+    },
+    "ios": {
+      "bundleIdentifier": "br.com.mareln.mobile"
+    }
   }
 }
