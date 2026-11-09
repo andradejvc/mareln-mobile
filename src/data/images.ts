@@ -1,4 +1,6 @@
+// Catálogo de URLs das imagens do aplicativo
 const BASE = 'https://raw.githubusercontent.com/andradejvc/mareln-desktop/main/public/image/';
+
 export const images = {
   logo: `${BASE}logo.png`,
   hero: `${BASE}primeira-img.jpg`,

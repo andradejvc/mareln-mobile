@@ -1,26 +1,77 @@
+// Dados e eventos de demonstração (fallback)
 import type { Category, City, EventItem } from '@/types/event';
 import { images } from './images';
 
+// Lista de cidades atendidas
 export const cities: City[] = ['Caraguatatuba', 'São Sebastião', 'Ilhabela', 'Ubatuba'];
+
+// Lista de categorias de eventos
 export const categories: Category[] = ['Música', 'Cultura', 'Esporte', 'Natureza', 'Feira', 'Gastronomia'];
 
-// Eventos de demonstração baseados na lista do repositório MaréLN Desktop.
-// Datas e horários devem ser revisados quando os dados vierem da API oficial.
-export const events: EventItem[] = [
-  { id: 1, title: 'Festival de Jazz na Praia', category: 'Música', date: '28 de ago.', time: '18:00', place: 'Praia Grande de Ubatuba', city: 'Ubatuba', image: images.musical, free: true, description: 'Uma programação dedicada ao jazz em um cenário de praia, com apresentações musicais e clima descontraído no litoral.', recommendations: ['Confira a programação com a organização.', 'Chegue com antecedência.', 'Leve uma canga ou cadeira de praia.'] },
-  { id: 2, title: 'Feira de Artesanato Local', category: 'Feira', date: '28 de ago.', time: '09:00', place: 'Praça Cândido Mota', city: 'Caraguatatuba', image: images.fairs, free: true, description: 'Feira voltada ao artesanato local, reunindo trabalhos manuais e produtos de pequenos expositores.', recommendations: ['Leve uma bolsa reutilizável.', 'Confirme as formas de pagamento com os expositores.', 'Reserve um tempo para conhecer os estandes.'] },
-  { id: 3, title: 'Noite de Forró Pé de Serra', category: 'Música', date: '29 de ago.', time: '20:00', place: 'Praça de Eventos do Galeão', city: 'Ilhabela', image: images.musical, free: true, description: 'Encontro com temática de forró pé de serra para aproveitar música e dança em clima de celebração.', recommendations: ['Use roupas e calçados confortáveis.', 'Consulte o horário com a organização.', 'Planeje o transporte de ida e volta.'] },
-  { id: 4, title: 'Caminhada Ecológica na Mata', category: 'Natureza', date: '30 de ago.', time: '07:00', place: 'Parque Estadual da Serra do Mar', city: 'Ubatuba', image: images.nature, free: true, description: 'Atividade ao ar livre com proposta de contato com a Mata Atlântica e observação da paisagem natural.', recommendations: ['Use calçado adequado.', 'Leve água e proteção contra sol e insetos.', 'Siga apenas percursos autorizados.'] },
-  { id: 5, title: 'Torneio de Vôlei de Praia', category: 'Esporte', date: '31 de ago.', time: '10:00', place: 'Praia de Maresias', city: 'São Sebastião', image: images.sports, free: true, description: 'Competição de vôlei de praia com partidas e atividades ligadas ao esporte na areia.', recommendations: ['Leve água e proteção solar.', 'Use roupas confortáveis.', 'Confira a programação das partidas.'] },
-  { id: 6, title: 'Exposição de Arte Marinha', category: 'Cultura', date: '01 de set.', time: '14:00', place: 'Centro Cultural', city: 'São Sebastião', image: images.culture, free: true, description: 'Exposição dedicada a temas marinhos, aproximando o público de expressões artísticas ligadas ao oceano e ao litoral.', recommendations: ['Consulte os horários de visitação.', 'Evite tocar nas obras.', 'Reserve tempo para percorrer a mostra.'] },
-  { id: 7, title: 'Aula Aberta de Surf', category: 'Esporte', date: '02 de set.', time: '08:00', place: 'Praia da Vila', city: 'Ubatuba', image: images.surf, free: true, description: 'Aula aberta para conhecer o universo do surf e se aproximar da prática esportiva no mar.', recommendations: ['Confirme se precisa levar equipamento.', 'Respeite as orientações de segurança.', 'Verifique as condições do mar.'] },
-  { id: 8, title: 'Mercado Gastronômico', category: 'Gastronomia', date: '03 de set.', time: '11:00', place: 'Praça da Cultura', city: 'Caraguatatuba', image: images.food, free: true, description: 'Encontro gastronômico com foco em conhecer diferentes opções de comida e experiências culinárias.', recommendations: ['Verifique preços nos estandes.', 'Avise sobre alergias alimentares.', 'Descarte resíduos nas lixeiras.'] },
-  { id: 9, title: 'Festival de Surf', category: 'Esporte', date: '30 de ago.', time: '19:00', place: 'Maresias', city: 'São Sebastião', image: images.sports, free: true, description: 'Evento inspirado pela cultura do surf em Maresias, reunindo pessoas interessadas no esporte e no estilo de vida ligado ao mar.', recommendations: ['Confira a programação.', 'Leve água e proteção solar.', 'Respeite as orientações de segurança.'] },
-  { id: 10, title: 'Feira da Praia', category: 'Feira', date: '02 de set.', time: '10:00', place: 'Centro', city: 'Ubatuba', image: images.fairs, free: false, description: 'Feira no Centro de Ubatuba com foco em produtos e iniciativas de comércio local.', recommendations: ['Leve uma bolsa reutilizável.', 'Confirme as formas de pagamento.', 'Mantenha livres as áreas de circulação.'] },
-  { id: 11, title: 'Subida por do sol', category: 'Natureza', date: '05 de set.', time: '17:00', place: 'Morro Santo Antônio', city: 'Caraguatatuba', image: images.sunset, free: true, description: 'Atividade de subida ao Morro Santo Antônio para aproveitar a paisagem no fim da tarde.', recommendations: ['Use calçado adequado.', 'Comece o percurso com antecedência.', 'Não ultrapasse áreas sinalizadas.'] },
-  { id: 12, title: 'Show de Aniversário Ilha', category: 'Música', date: '02 de set.', time: '16:00', place: 'Praça de Eventos do Galeão', city: 'Ilhabela', image: images.musical, free: true, description: 'Apresentação musical ligada à comemoração do aniversário de Ilhabela.', recommendations: ['Confira os horários oficiais.', 'Combine um ponto de encontro.', 'Planeje o deslocamento e o retorno.'] },
-  { id: 13, title: 'Noite de Cultura Caiçara', category: 'Cultura', date: '07 de set.', time: '19:30', place: 'Praça Cândido Mota', city: 'Caraguatatuba', image: images.culture, free: true, description: 'Encontro cultural dedicado às tradições caiçaras e à identidade do litoral.', recommendations: ['Consulte a programação.', 'Chegue com antecedência.', 'Respeite os participantes e o espaço público.'] },
-  { id: 14, title: 'Trilha das Cachoeiras', category: 'Natureza', date: '09 de set.', time: '08:00', place: 'Praia da Almada', city: 'Ubatuba', image: images.nature, free: true, description: 'Atividade de caminhada na região da Praia da Almada, com foco em conhecer paisagens e ambientes naturais.', recommendations: ['Use calçado adequado para trilha.', 'Siga os caminhos autorizados.', 'Verifique as condições climáticas.'] },
+// Flag para ativar ou desativar dados estáticos de fallback
+export const USE_STATIC_FALLBACK = true;
+
+// Eventos estáticos de demonstração
+export const STATIC_FALLBACK_EVENTS: EventItem[] = [
+  {
+    id: 1,
+    title: 'Festival de Jazz na Praia',
+    category: 'Música',
+    date: '28 de ago.',
+    time: '18:00',
+    place: 'Praia Grande de Ubatuba',
+    city: 'Ubatuba',
+    image: images.musical,
+    free: true,
+    description:
+      'Uma programação dedicada ao jazz em um cenário de praia, com apresentações musicais e clima descontraído no litoral.',
+    recommendations: [
+      'Confira a programação com a organização.',
+      'Chegue com antecedência.',
+      'Leve uma canga ou cadeira de praia.',
+    ],
+  },
+  {
+    id: 2,
+    title: 'Feira de Artesanato Local',
+    category: 'Feira',
+    date: '28 de ago.',
+    time: '09:00',
+    place: 'Praça Cândido Mota',
+    city: 'Caraguatatuba',
+    image: images.fairs,
+    free: true,
+    description:
+      'Feira voltada ao artesanato local, reunindo trabalhos manuais e produtos de pequenos expositores.',
+    recommendations: [
+      'Leve uma bolsa reutilizável.',
+      'Confirme as formas de pagamento com os expositores.',
+      'Reserve um tempo para conhecer os estandes.',
+    ],
+  },
+  {
+    id: 3,
+    title: 'Noite de Forró Pé de Serra',
+    category: 'Música',
+    date: '29 de ago.',
+    time: '20:00',
+    place: 'Praça de Eventos do Galeão',
+    city: 'Ilhabela',
+    image: images.musical,
+    free: true,
+    description:
+      'Encontro com temática de forró pé de serra para aproveitar música e dança em clima de celebração.',
+    recommendations: [
+      'Use roupas e calçados confortáveis.',
+      'Consulte o horário com a organização.',
+      'Planeje o transporte de ida e volta.',
+    ],
+  },
 ];
 
-export const getEventById = (id: number) => events.find((event) => event.id === id);
+// Exportação da lista de eventos
+export const events: EventItem[] = USE_STATIC_FALLBACK ? STATIC_FALLBACK_EVENTS : [];
+
+// Busca de evento por identificador
+export const getEventById = (id: number): EventItem | undefined =>
+  events.find((event) => event.id === id);
