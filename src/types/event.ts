@@ -1,4 +1,6 @@
+// Tipos de dados de eventos
 export type City = 'Caraguatatuba' | 'São Sebastião' | 'Ilhabela' | 'Ubatuba';
+
 export type Category = 'Esporte' | 'Cultura' | 'Natureza' | 'Música' | 'Feira' | 'Gastronomia';
 
 export type EventItem = {
