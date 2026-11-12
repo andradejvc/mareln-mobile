@@ -1,71 +1,127 @@
-// Seção sobre a proposta do projeto
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
 import { images } from '@/data/images';
-import { radius, spacing, typography } from '@/theme';
-import { useApp } from '@/contexts/AppContext';
 
 export function AboutSection() {
-  const { theme } = useApp();
-
   return (
-    <View style={[styles.wrap, { backgroundColor: theme.background }]}>
-      <View style={styles.photoRow}>
-        <Image source={{ uri: images.aboutOne }} style={styles.photoA} />
-        <Image source={{ uri: images.aboutTwo }} style={styles.photoB} />
+    <View style={styles.container}>
+      <View style={styles.imageArea}>
+        <View style={styles.decorationTop} />
+
+        <Image
+          source={{ uri: images.hero }}
+          style={styles.imageBack}
+        />
+
+        <Image
+          source={{ uri: images.culture }}
+          style={styles.imageFront}
+        />
+
+        <View style={styles.decorationBottom} />
       </View>
-      <Text style={[styles.kicker, { color: theme.primary }]}>SOBRE NÓS</Text>
-      <Text style={[styles.title, { color: theme.text }]}>Sua jornada começa aqui</Text>
-      <Text style={[styles.text, { color: theme.textMuted }]}>
-        A Maré LN nasceu para transformar eventos em memórias. Descubra shows, cultura, esportes e
-        feiras que conectam você ao melhor do litoral norte de São Paulo.
-      </Text>
-      <Text style={[styles.signature, { color: theme.secondary }]}>Viaje. Descubra. Viva.</Text>
+
+      <View style={styles.textArea}>
+        <Text style={styles.description}>
+          <Text style={styles.highlight}>MARÉ LN</Text>
+          {' '}é a sua plataforma para descobrir e aproveitar
+          eventos, cultura, lazer e experiências incríveis
+          no litoral norte de São Paulo.
+        </Text>
+
+        <Text style={styles.extra}>
+          Descubra novos lugares, participe de eventos e
+          aproveite tudo o que nossa região tem a oferecer!
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
+  container: {
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 22,
-    paddingVertical: 38,
+    paddingTop: 35,
+    paddingBottom: 40,
   },
-  photoRow: {
-    height: 210,
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginBottom: spacing.xxl,
+
+  imageArea: {
+    height: 290,
+    width: '100%',
+    position: 'relative',
+    marginBottom: 20,
   },
-  photoA: {
-    width: '48%',
+
+  imageBack: {
+    position: 'absolute',
+    width: '59%',
     height: 190,
-    borderRadius: radius.lg,
-    marginTop: spacing.xl,
+    right: 0,
+    top: 0,
+    borderRadius: 10,
+    resizeMode: 'cover',
   },
-  photoB: {
-    width: '48%',
-    height: 190,
-    borderRadius: radius.lg,
+
+  imageFront: {
+    position: 'absolute',
+    width: '67%',
+    height: 205,
+    left: 0,
+    bottom: 5,
+    borderRadius: 10,
+    borderWidth: 5,
+    borderColor: '#FFFFFF',
+    resizeMode: 'cover',
   },
-  kicker: {
-    fontWeight: typography.fontWeight.heavy,
-    letterSpacing: 2,
-    fontSize: typography.fontSize.sm,
+
+  decorationTop: {
+    position: 'absolute',
+    width: 65,
+    height: 12,
+    backgroundColor: '#EF5B18',
+    top: 65,
+    left: 20,
+    transform: [{ rotate: '-35deg' }],
+    zIndex: 2,
   },
-  title: {
-    marginTop: 6,
-    fontSize: typography.fontSize.title,
-    fontWeight: typography.fontWeight.heavy,
+
+  decorationBottom: {
+    position: 'absolute',
+    width: 45,
+    height: 12,
+    backgroundColor: '#EF5B18',
+    bottom: 30,
+    right: 10,
+    transform: [{ rotate: '-35deg' }],
   },
-  text: {
-    marginTop: spacing.sm,
-    lineHeight: 24,
-    fontSize: typography.fontSize.lg - 1,
+
+  textArea: {
+    paddingHorizontal: 2,
   },
-  signature: {
-    marginTop: spacing.lg,
-    fontSize: 19,
-    fontWeight: typography.fontWeight.heavy,
-    fontStyle: 'italic',
+
+  description: {
+    color: '#292524',
+    fontSize: 17,
+    lineHeight: 25,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+
+  highlight: {
+    color: '#EF5B18',
+  },
+
+  extra: {
+    color: '#777777',
+    fontSize: 13,
+    lineHeight: 20,
+    marginTop: 12,
   },
 });

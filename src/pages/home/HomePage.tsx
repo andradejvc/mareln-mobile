@@ -1,6 +1,6 @@
-// Página inicial pública do aplicativo
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
+
 import { HeroSection } from '@/components/home/HeroSection';
 import { AboutSection } from '@/components/home/AboutSection';
 import { CategoriesSection } from '@/components/home/CategoriesSection';

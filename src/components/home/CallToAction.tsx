@@ -1,21 +1,23 @@
-// Chamada para ação de cadastro
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+
 import { PrimaryButton } from '@/components/shared/PrimaryButton';
-import { spacing, typography } from '@/theme';
-import { useApp } from '@/contexts/AppContext';
 
 export function CallToAction() {
   const router = useRouter();
-  const { theme } = useApp();
 
   return (
-    <View style={[styles.wrap, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.primary }]}>Pronto para viver o litoral?</Text>
-      <Text style={[styles.text, { color: theme.textMuted }]}>
-        Crie sua conta gratuita e não perca nenhum evento perto de você.
+    <View style={styles.container}>
+      <Text style={styles.title}>
+        Pronto para viver o litoral?
       </Text>
+
+      <Text style={styles.description}>
+        Crie sua conta gratuita e descubra eventos
+        e experiências incríveis perto de você.
+      </Text>
+
       <PrimaryButton
         title="Criar conta"
         variant="pink"
@@ -27,25 +29,32 @@ export function CallToAction() {
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    paddingHorizontal: spacing.xxl,
-    paddingVertical: 50,
+  container: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 25,
+    paddingVertical: 45,
     alignItems: 'center',
   },
+
   title: {
+    color: '#EF5B18',
+    fontSize: 23,
+    fontWeight: '900',
     textAlign: 'center',
-    fontSize: typography.fontSize.display,
-    fontWeight: typography.fontWeight.heavy,
-    lineHeight: 40,
   },
-  text: {
-    marginTop: spacing.md,
+
+  description: {
+    color: '#777777',
+    fontSize: 13,
+    lineHeight: 20,
     textAlign: 'center',
-    fontSize: typography.fontSize.md,
-    lineHeight: 21,
+    marginTop: 14,
+    maxWidth: 290,
   },
+
   button: {
-    marginTop: spacing.xxl - 2,
-    width: '100%',
+    marginTop: 22,
+    width: 190,
+    borderRadius: 30,
   },
 });
