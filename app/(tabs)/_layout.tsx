@@ -1,11 +1,14 @@
 // Layout da barra de abas inferiores (Tabs)
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '@/contexts/AppContext';
 
 export default function TabLayout() {
-  const { theme } = useApp();
+  const { theme, user, ready } = useApp();
+
+  if (!ready) return null;
+  if (!user) return <Redirect href="/login" />;
 
   return (
     <Tabs

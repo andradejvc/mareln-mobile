@@ -1,43 +1,38 @@
 import React from 'react';
-import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { images } from '@/data/images';
+import { useApp } from '@/contexts/AppContext';
 
 export function AboutSection() {
-  return (
-    <View style={styles.container}>
-      <View style={styles.imageArea}>
-        <View style={styles.decorationTop} />
+  const { theme } = useApp();
 
-        <Image
-          source={{ uri: images.hero }}
-          style={styles.imageBack}
-        />
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.imageArea}>
+        <View style={[styles.decoration, { backgroundColor: theme.primary }]} />
+
+        <Image source={{ uri: images.hero }} style={styles.imageBack} />
 
         <Image
           source={{ uri: images.culture }}
-          style={styles.imageFront}
+          style={[styles.imageFront, { borderColor: theme.background }]}
         />
-
-        <View style={styles.decorationBottom} />
       </View>
 
       <View style={styles.textArea}>
-        <Text style={styles.description}>
-          <Text style={styles.highlight}>MARÉ LN</Text>
-          {' '}é a sua plataforma para descobrir e aproveitar
-          eventos, cultura, lazer e experiências incríveis
-          no litoral norte de São Paulo.
+        <Text style={[styles.eyebrow, { color: theme.primary }]}>
+          SOBRE A PLATAFORMA
         </Text>
 
-        <Text style={styles.extra}>
-          Descubra novos lugares, participe de eventos e
-          aproveite tudo o que nossa região tem a oferecer!
+        <Text style={[styles.description, { color: theme.text }]}>
+          O litoral norte tem muito para oferecer.{' '}
+          <Text style={{ color: theme.primary }}>A Maré LN</Text>
+          {' '}conecta você aos eventos, à cultura e às experiências da nossa região.
+        </Text>
+
+        <Text style={[styles.extra, { color: theme.textMuted }]}>
+          Descubra novos lugares, participe de eventos e aproveite tudo o que
+          nossa região tem a oferecer.
         </Text>
       </View>
     </View>
@@ -46,82 +41,58 @@ export function AboutSection() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 22,
-    paddingTop: 35,
-    paddingBottom: 40,
+    paddingHorizontal: 23,
+    paddingTop: 38,
+    paddingBottom: 42,
   },
-
   imageArea: {
-    height: 290,
+    height: 270,
     width: '100%',
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 28,
   },
-
   imageBack: {
     position: 'absolute',
-    width: '59%',
-    height: 190,
+    width: '65%',
+    height: 185,
     right: 0,
     top: 0,
-    borderRadius: 10,
-    resizeMode: 'cover',
+    borderRadius: 18,
   },
-
   imageFront: {
     position: 'absolute',
-    width: '67%',
-    height: 205,
+    width: '70%',
+    height: 190,
     left: 0,
-    bottom: 5,
-    borderRadius: 10,
+    bottom: 0,
+    borderRadius: 18,
     borderWidth: 5,
-    borderColor: '#FFFFFF',
-    resizeMode: 'cover',
   },
-
-  decorationTop: {
+  decoration: {
     position: 'absolute',
     width: 65,
-    height: 12,
-    backgroundColor: '#EF5B18',
-    top: 65,
-    left: 20,
-    transform: [{ rotate: '-35deg' }],
+    height: 8,
+    top: 195,
+    right: 4,
+    borderRadius: 10,
+    transform: [{ rotate: '-45deg' }],
     zIndex: 2,
   },
-
-  decorationBottom: {
-    position: 'absolute',
-    width: 45,
-    height: 12,
-    backgroundColor: '#EF5B18',
-    bottom: 30,
-    right: 10,
-    transform: [{ rotate: '-35deg' }],
-  },
-
   textArea: {
-    paddingHorizontal: 2,
+    gap: 12,
   },
-
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1.7,
+  },
   description: {
-    color: '#292524',
-    fontSize: 17,
-    lineHeight: 25,
+    fontSize: 21,
+    lineHeight: 30,
     fontWeight: '800',
-    textTransform: 'uppercase',
   },
-
-  highlight: {
-    color: '#EF5B18',
-  },
-
   extra: {
-    color: '#777777',
-    fontSize: 13,
-    lineHeight: 20,
-    marginTop: 12,
+    fontSize: 14,
+    lineHeight: 22,
   },
 });

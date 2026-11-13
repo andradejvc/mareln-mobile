@@ -6,9 +6,9 @@ import {
   Text,
   View,
 } from 'react-native';
-
 import { useRouter } from 'expo-router';
 import { images } from '@/data/images';
+import { useApp } from '@/contexts/AppContext';
 
 const categoryItems = [
   {
@@ -39,17 +39,24 @@ const categoryItems = [
 
 export function CategoriesSection() {
   const router = useRouter();
+  const { theme } = useApp();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>EVENTOS</Text>
-
-      <Text style={styles.subtitle}>
-        Descubra experiências pelo litoral
-      </Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.heading}>
+        <Text style={[styles.eyebrow, { color: theme.primary }]}>
+          EXPLORE
+        </Text>
+        <Text style={[styles.title, { color: theme.text }]}>
+          O que você procura?
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+          Descubra experiências pelo litoral.
+        </Text>
+      </View>
 
       <View style={styles.cards}>
-        {categoryItems.map((item, index) => (
+        {categoryItems.map((item) => (
           <Pressable
             key={item.title}
             onPress={() =>
@@ -58,23 +65,26 @@ export function CategoriesSection() {
                 params: { categoria: item.category },
               } as any)
             }
-            style={[
+            style={({ pressed }) => [
               styles.card,
-              index % 2 !== 0 && styles.reverse,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+              pressed && styles.pressed,
             ]}
           >
-            <Image
-              source={{ uri: item.image }}
-              style={styles.image}
-            />
+            <Image source={{ uri: item.image }} style={styles.image} />
 
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>
                 {item.title}
               </Text>
-
-              <Text style={styles.cardDescription}>
+              <Text style={[styles.cardDescription, { color: theme.textMuted }]}>
                 {item.description}
+              </Text>
+              <Text style={[styles.link, { color: theme.primary }]}>
+                Explorar →
               </Text>
             </View>
           </Pressable>
@@ -86,73 +96,63 @@ export function CategoriesSection() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#EF5B18',
-    paddingHorizontal: 18,
-    paddingTop: 28,
-    paddingBottom: 35,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    paddingHorizontal: 20,
+    paddingTop: 35,
+    paddingBottom: 40,
   },
-
-  title: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '900',
-    textAlign: 'center',
-    letterSpacing: 1,
-  },
-
-  subtitle: {
-    color: '#FFE5D5',
-    fontSize: 13,
-    textAlign: 'center',
-    marginTop: 5,
+  heading: {
     marginBottom: 23,
+    gap: 6,
   },
-
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1.7,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: '900',
+    letterSpacing: -0.7,
+  },
+  subtitle: {
+    fontSize: 13,
+  },
   cards: {
     gap: 13,
   },
-
   card: {
     flexDirection: 'row',
-    alignItems: 'stretch',
-    backgroundColor: '#C9784C',
-    borderRadius: 12,
+    minHeight: 120,
+    borderRadius: 16,
     overflow: 'hidden',
-    minHeight: 112,
+    borderWidth: 1,
   },
-
-  reverse: {
-    flexDirection: 'row-reverse',
-  },
-
   image: {
-    width: '48%',
-    height: 112,
-    resizeMode: 'cover',
+    width: '42%',
+    minHeight: 120,
   },
-
   cardContent: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 5,
   },
-
   cardTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '900',
-    textAlign: 'center',
+    letterSpacing: 0.5,
   },
-
   cardDescription: {
-    color: '#FFF1E8',
-    fontSize: 10,
-    lineHeight: 15,
-    textAlign: 'center',
-    marginTop: 6,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  link: {
+    fontSize: 11,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  pressed: {
+    opacity: 0.8,
   },
 });

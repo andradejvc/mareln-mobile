@@ -6,16 +6,17 @@ import {
   readFavorites,
   readNotifications,
   readThemePreference,
-  readUser,
+  readSession,
   writeConfirmedEvents,
   writeFavorites,
   writeNotifications,
   writeThemePreference,
-  writeUser,
+  writeSession,
+  type StoredSession,
   type StoredNotification,
   type StoredUser,
 } from '@/services/storage';
-import { fetchEvents, fetchEventById } from '@/services/api';
+import { authenticatedRequest, apiRequest, ApiError, fetchEvents, fetchEventById, type AuthResponse, type AuthUser } from '@/services/api';
 import { STATIC_FALLBACK_EVENTS, USE_STATIC_FALLBACK } from '@/data/events';
 import { darkTheme, lightTheme, type AppTheme } from '@/theme';
 import type { EventItem } from '@/types/event';
@@ -44,6 +45,7 @@ type AppContextValue = {
   signIn: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -52,6 +54,7 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useColorScheme();
   const [user, setUser] = useState<StoredUser | null>(null);
+  const [session, setSession] = useState<StoredSession | null>(null);
   const [favorites, setFavorites] = useState<number[]>([1, 3, 6]);
   const [confirmedEvents, setConfirmedEvents] = useState<number[]>([1]);
   const [notifications, setNotifications] = useState<StoredNotification[]>([]);
@@ -139,69 +142,91 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [events]
   );
 
+  const saveAuthResponse = useCallback(async (response: AuthResponse) => {
+    const next: StoredSession = { accessToken: response.accessToken, refreshToken: response.refreshToken, user: { id: response.usuario.id, name: response.usuario.nome, email: response.usuario.email } };
+    await writeSession(next);
+    setSession(next);
+    setUser(next.user);
+  }, []);
+
   // Inicialização dos dados persistidos
   useEffect(() => {
     Promise.all([
-      readUser(),
+      readSession(),
       readFavorites(),
       readConfirmedEvents(),
       readNotifications(),
       readThemePreference(),
     ])
-      .then(([savedUser, savedFavorites, savedConfirmed, savedNotifications, savedTheme]) => {
-        setUser(savedUser);
+      .then(async ([savedSession, savedFavorites, savedConfirmed, savedNotifications, savedTheme]) => {
+        setSession(savedSession);
+        setUser(savedSession?.user ?? null);
         setFavorites(savedFavorites);
         setConfirmedEvents(savedConfirmed);
         setNotifications(savedNotifications);
         if (savedTheme) {
           setManualTheme(savedTheme);
         }
+        if (savedSession) {
+          let active = savedSession;
+          try {
+            const usuario = await authenticatedRequest<AuthUser>('auth/me', active.accessToken, active.refreshToken, {}, async (response) => {
+              await saveAuthResponse(response);
+              active = { accessToken: response.accessToken, refreshToken: response.refreshToken, user: { id: response.usuario.id, name: response.usuario.nome, email: response.usuario.email } };
+            });
+            const next = { ...active, user: { id: usuario.id, name: usuario.nome, email: usuario.email } };
+            await writeSession(next); setSession(next); setUser(next.user);
+          } catch (error) {
+            if (error instanceof ApiError && error.status === 401) await writeSession(null).then(() => { setSession(null); setUser(null); });
+          }
+        }
       })
       .finally(() => setReady(true));
 
     void refreshEvents();
-  }, [refreshEvents]);
+  }, [refreshEvents, saveAuthResponse]);
 
   // Atualizar dados cadastrais do usuário
-  const updateUser = async (name: string, email: string) => {
-    if (!name.trim() || !email.trim()) {
-      throw new Error('Nome e e-mail não podem ficar vazios.');
-    }
-    const updated = { name: name.trim(), email: email.trim() };
-    setUser(updated);
-    await writeUser(updated);
-  };
+  const updateUser = useCallback(async (name: string, email: string) => {
+    if (!session) throw new Error('Entre novamente para atualizar o perfil.');
+    const nome = name.trim(); const normalizedEmail = email.trim().toLowerCase();
+    if (!nome) throw new Error('Informe seu nome.');
+    if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(normalizedEmail)) throw new Error('Digite um e-mail válido.');
+    let active = session;
+    const usuario = await authenticatedRequest<AuthUser>(`usuarios/${session.user.id}`, active.accessToken, active.refreshToken, { method: 'PATCH', body: JSON.stringify({ nome, email: normalizedEmail }) }, async (response) => {
+      await saveAuthResponse(response);
+      active = { accessToken: response.accessToken, refreshToken: response.refreshToken, user: { id: response.usuario.id, name: response.usuario.nome, email: response.usuario.email } };
+    });
+    const next = { ...active, user: { id: usuario.id, name: usuario.nome, email: usuario.email } };
+    await writeSession(next); setSession(next); setUser(next.user);
+  }, [saveAuthResponse, session]);
 
   // Login de usuário
-  const signIn = async (email: string, password: string) => {
-    if (!email.trim() || !password.trim()) {
-      throw new Error('Informe e-mail e senha.');
-    }
-    const current = await readUser();
-    const name =
-      current?.email.toLowerCase() === email.trim().toLowerCase()
-        ? current.name
-        : email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-    const nextUser = { name: name || 'Visitante', email: email.trim() };
-    setUser(nextUser);
-    await writeUser(nextUser);
-  };
+  const signIn = useCallback(async (email: string, password: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password) throw new Error('Informe e-mail e senha.');
+    if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(normalizedEmail)) throw new Error('Digite um e-mail válido.');
+    if (password.length < 8) throw new Error('A senha precisa ter pelo menos 8 caracteres.');
+    await saveAuthResponse(await apiRequest<AuthResponse>('auth/login', { method: 'POST', body: JSON.stringify({ email: normalizedEmail, senha: password }) }));
+  }, [saveAuthResponse]);
 
   // Cadastro de usuário
-  const register = async (name: string, email: string, password: string) => {
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      throw new Error('Preencha todos os campos.');
-    }
-    const nextUser = { name: name.trim(), email: email.trim() };
-    setUser(nextUser);
-    await writeUser(nextUser);
-  };
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    const nome = name.trim(); const normalizedEmail = email.trim().toLowerCase();
+    if (!nome || !normalizedEmail || !password) throw new Error('Preencha todos os campos.');
+    if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(normalizedEmail)) throw new Error('Digite um e-mail válido.');
+    if (password.length < 8) throw new Error('A senha precisa ter pelo menos 8 caracteres.');
+    await saveAuthResponse(await apiRequest<AuthResponse>('auth/register', { method: 'POST', body: JSON.stringify({ nome, email: normalizedEmail, senha: password }) }));
+  }, [saveAuthResponse]);
 
   // Logout de usuário
-  const signOut = async () => {
-    setUser(null);
-    await writeUser(null);
-  };
+  const signOut = useCallback(async () => { await writeSession(null); setSession(null); setUser(null); }, []);
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    if (!session) throw new Error('Entre novamente para alterar a senha.');
+    if (currentPassword.length < 8 || newPassword.length < 8) throw new Error('As senhas precisam ter pelo menos 8 caracteres.');
+    await authenticatedRequest('usuarios/me/senha', session.accessToken, session.refreshToken, { method: 'PATCH', body: JSON.stringify({ senhaAtual: currentPassword, novaSenha: newPassword }) }, saveAuthResponse);
+    await signOut();
+  }, [saveAuthResponse, session, signOut]);
 
   // Favoritar ou desfavoritar evento
   const toggleFavorite = (id: number) => {
@@ -259,6 +284,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       signIn,
       register,
       signOut,
+      changePassword,
       toggleFavorite,
       toggleConfirmedPresence,
       markNotificationAsRead,
@@ -279,6 +305,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       refreshEvents,
       getEventById,
       fetchEventDetails,
+      updateUser,
+      signIn,
+      register,
+      signOut,
+      changePassword,
     ]
   );
 

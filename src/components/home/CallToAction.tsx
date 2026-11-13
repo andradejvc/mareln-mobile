@@ -1,21 +1,28 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-
 import { PrimaryButton } from '@/components/shared/PrimaryButton';
+import { useApp } from '@/contexts/AppContext';
 
 export function CallToAction() {
   const router = useRouter();
+  const { theme } = useApp();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
+    <View style={[styles.container, { backgroundColor: theme.card }]}>
+      <View style={[styles.decoration, { backgroundColor: theme.primary }]} />
+
+      <Text style={[styles.eyebrow, { color: theme.primary }]}>
+        FAÇA PARTE
+      </Text>
+
+      <Text style={[styles.title, { color: theme.text }]}>
         Pronto para viver o litoral?
       </Text>
 
-      <Text style={styles.description}>
-        Crie sua conta gratuita e descubra eventos
-        e experiências incríveis perto de você.
+      <Text style={[styles.description, { color: theme.textMuted }]}>
+        Crie sua conta gratuita e descubra eventos e experiências incríveis
+        perto de você.
       </Text>
 
       <PrimaryButton
@@ -30,31 +37,39 @@ export function CallToAction() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 25,
-    paddingVertical: 45,
+    paddingVertical: 42,
     alignItems: 'center',
   },
-
+  decoration: {
+    width: 42,
+    height: 5,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 1.8,
+    marginBottom: 10,
+  },
   title: {
-    color: '#EF5B18',
-    fontSize: 23,
+    fontSize: 24,
+    lineHeight: 31,
     fontWeight: '900',
     textAlign: 'center',
+    maxWidth: 300,
   },
-
   description: {
-    color: '#777777',
     fontSize: 13,
-    lineHeight: 20,
+    lineHeight: 21,
     textAlign: 'center',
-    marginTop: 14,
-    maxWidth: 290,
+    marginTop: 13,
+    maxWidth: 300,
   },
-
   button: {
-    marginTop: 22,
-    width: 190,
-    borderRadius: 30,
+    marginTop: 24,
+    width: 200,
+    borderRadius: 14,
   },
 });

@@ -16,10 +16,13 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Submissão do cadastro
   const submit = async () => {
+    if (loading) return;
+    if (password !== confirm) { Alert.alert('Confira os dados', 'As senhas não coincidem.'); return; }
     try {
       setLoading(true);
       await register(name, email, password);
@@ -50,6 +53,7 @@ export default function RegisterPage() {
         onChangeText={setEmail}
         placeholder="seu@email.com"
         keyboardType="email-address"
+        autoCapitalize="none"
       />
 
       <InputField
@@ -59,6 +63,8 @@ export default function RegisterPage() {
         placeholder="Crie uma senha"
         secureTextEntry
       />
+
+      <InputField label="Confirmar senha" value={confirm} onChangeText={setConfirm} placeholder="Repita a senha" secureTextEntry />
 
       <PrimaryButton
         title="Criar conta"
@@ -77,9 +83,6 @@ export default function RegisterPage() {
         </Link>
       </View>
 
-      <Text style={[styles.note, { color: theme.textMuted }]}>
-        Cadastro demonstrativo: os dados ficam somente neste dispositivo.
-      </Text>
     </AuthShell>
   );
 }
@@ -95,9 +98,5 @@ const styles = StyleSheet.create({
   },
   link: {
     fontWeight: typography.fontWeight.heavy,
-  },
-  note: {
-    fontSize: typography.fontSize.xs,
-    textAlign: 'center',
   },
 });

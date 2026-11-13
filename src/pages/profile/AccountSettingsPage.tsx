@@ -1,12 +1,16 @@
 // Tela de configurações da conta do usuário
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { InputField } from '@/components/shared/InputField';
 import { PrimaryButton } from '@/components/shared/PrimaryButton';
+import { AppModal } from '@/components/shared/AppModal';
 import { useApp } from '@/contexts/AppContext';
 import { radius, spacing, typography } from '@/theme';
+
+// Estado do modal de aviso (sucesso/erro)
+type FeedbackState = { title: string; message: string } | null;
 
 export default function AccountSettingsPage() {
   const router = useRouter();
@@ -17,144 +21,160 @@ export default function AccountSettingsPage() {
   const [email, setEmail] = useState(user?.email || '');
   const [saving, setSaving] = useState(false);
 
+  // Estados dos modais
+  const [feedback, setFeedback] = useState<FeedbackState>(null);
+  const [logoutVisible, setLogoutVisible] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
   // Salvar alterações de nome e e-mail
   const handleSaveProfile = async () => {
+    if (saving) return;
     try {
       setSaving(true);
       await updateUser(name, email);
-      Alert.alert('Sucesso', 'Informações atualizadas com sucesso.');
+      setFeedback({ title: 'Sucesso', message: 'Informações atualizadas com sucesso.' });
     } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Falha ao salvar informações.');
+      setFeedback({
+        title: 'Erro',
+        message: error instanceof Error ? error.message : 'Falha ao salvar informações.',
+      });
     } finally {
       setSaving(false);
     }
   };
 
-  // Diálogo de confirmação para logout
-  const handleLogout = () => {
-    Alert.alert('Sair da conta', 'Tem certeza que deseja encerrar sua sessão?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair',
-        style: 'destructive',
-        onPress: async () => {
-          await signOut();
-          router.replace('/' as any);
-        },
-      },
-    ]);
+  // Confirmar logout: o guard do layout raiz leva pro index quando user vira null
+  const confirmLogout = async () => {
+    if (loggingOut) return;
+    try {
+      setLoggingOut(true);
+      await signOut();
+    } catch (error) {
+      setLoggingOut(false);
+      setLogoutVisible(false);
+      setFeedback({ title: 'Erro', message: 'Não foi possível sair da conta. Tente novamente.' });
+    }
   };
 
   return (
-    <ScrollView
-      style={[styles.page, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      {/* Botão de retorno */}
-      <Text
-        onPress={() => router.back()}
-        style={[styles.back, { color: theme.primary }]}
+    <>
+      <ScrollView
+        style={[styles.page, { backgroundColor: theme.background }]}
+        contentContainerStyle={styles.content}
       >
-        ‹ Voltar para o perfil
-      </Text>
-
-      <Text style={[styles.heading, { color: theme.secondary }]}>Configurações da conta</Text>
-      <Text style={[styles.sub, { color: theme.textMuted }]}>
-        Gerencie seus dados pessoais, senha e sessão.
-      </Text>
-
-      {/* Seção 1: Alterar informações pessoais */}
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor: theme.card,
-            borderColor: theme.border,
-          },
-        ]}
-      >
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Alterar informações</Text>
-        <InputField
-          label="Nome completo"
-          value={name}
-          onChangeText={setName}
-          placeholder="Seu nome completo"
-          autoCapitalize="words"
-        />
-        <InputField
-          label="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          placeholder="seu@email.com"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <PrimaryButton
-          title="Salvar alterações"
-          onPress={handleSaveProfile}
-          loading={saving}
-          style={styles.saveButton}
-        />
-      </View>
-
-      {/* Seção 2: Alterar senha */}
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor: theme.card,
-            borderColor: theme.border,
-          },
-        ]}
-      >
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Segurança</Text>
-        <Pressable
-          style={[
-            styles.optionRow,
-            {
-              backgroundColor: theme.surface,
-              borderColor: theme.border,
-            },
-          ]}
-          onPress={() => router.push('/alterar-senha' as any)}
+        {/* Botão de retorno */}
+        <Text
+          onPress={() => router.back()}
+          style={[styles.back, { color: theme.primary }]}
         >
-          <View style={styles.optionLeft}>
-            <Ionicons name="lock-closed-outline" size={20} color={theme.primary} />
-            <Text style={[styles.optionText, { color: theme.text }]}>Alterar senha</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
-        </Pressable>
-      </View>
+          ‹ Voltar para o perfil
+        </Text>
 
-      {/* Seção 3: Sair da conta */}
-      <View
-        style={[
-          styles.card,
-          {
-            backgroundColor: theme.card,
-            borderColor: theme.border,
-          },
-        ]}
-      >
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Sessão</Text>
-        <Pressable
+        <Text style={[styles.heading, { color: theme.secondary }]}>Configurações da conta</Text>
+        <Text style={[styles.sub, { color: theme.textMuted }]}>
+          Gerencie seus dados pessoais, senha e sessão.
+        </Text>
+
+        {/* Seção 1: Alterar informações pessoais */}
+        <View
           style={[
-            styles.optionRow,
-            {
-              backgroundColor: theme.surface,
-              borderColor: theme.secondary,
-            },
+            styles.card,
+            { backgroundColor: theme.card, borderColor: theme.border },
           ]}
-          onPress={handleLogout}
         >
-          <View style={styles.optionLeft}>
-            <Ionicons name="log-out-outline" size={20} color={theme.secondary} />
-            <Text style={[styles.optionText, { color: theme.secondary }]}>Sair da conta</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={theme.secondary} />
-        </Pressable>
-      </View>
-    </ScrollView>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Alterar informações</Text>
+          <InputField
+            label="Nome completo"
+            value={name}
+            onChangeText={setName}
+            placeholder="Seu nome completo"
+            autoCapitalize="words"
+          />
+          <InputField
+            label="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="seu@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <PrimaryButton
+            title="Salvar alterações"
+            onPress={handleSaveProfile}
+            loading={saving}
+            style={styles.saveButton}
+          />
+        </View>
+
+        {/* Seção 2: Alterar senha */}
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Segurança</Text>
+          <Pressable
+            style={[
+              styles.optionRow,
+              { backgroundColor: theme.surface, borderColor: theme.border },
+            ]}
+            onPress={() => router.push('/alterar-senha' as any)}
+          >
+            <View style={styles.optionLeft}>
+              <Ionicons name="lock-closed-outline" size={20} color={theme.primary} />
+              <Text style={[styles.optionText, { color: theme.text }]}>Alterar senha</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+          </Pressable>
+        </View>
+
+        {/* Seção 3: Sair da conta */}
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Sessão</Text>
+          <Pressable
+            style={[
+              styles.optionRow,
+              { backgroundColor: theme.surface, borderColor: theme.secondary },
+            ]}
+            onPress={() => setLogoutVisible(true)}
+          >
+            <View style={styles.optionLeft}>
+              <Ionicons name="log-out-outline" size={20} color={theme.secondary} />
+              <Text style={[styles.optionText, { color: theme.secondary }]}>Sair da conta</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.secondary} />
+          </Pressable>
+        </View>
+      </ScrollView>
+
+      {/* Modal de confirmação de logout */}
+      <AppModal
+        visible={logoutVisible}
+        title="Sair da conta"
+        message="Tem certeza que deseja encerrar sua sessão?"
+        confirmText="Sair"
+        cancelText="Cancelar"
+        destructive
+        loading={loggingOut}
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutVisible(false)}
+      />
+
+      {/* Modal de aviso (sucesso/erro) */}
+      <AppModal
+        visible={feedback !== null}
+        title={feedback?.title ?? ''}
+        message={feedback?.message ?? ''}
+        confirmText="OK"
+        onConfirm={() => setFeedback(null)}
+      />
+    </>
   );
 }
 

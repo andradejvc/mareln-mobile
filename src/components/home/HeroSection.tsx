@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ImageBackground,
   Pressable,
@@ -7,116 +7,103 @@ import {
   Text,
   View,
 } from 'react-native';
-
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { images } from '@/data/images';
+import { useApp } from '@/contexts/AppContext';
 
 export function HeroSection() {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { theme, toggleTheme, isDark } = useApp();
 
   const navigate = (route: string) => {
-    setMenuOpen(false);
     router.push(route as any);
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: theme.card,
+            borderBottomColor: theme.border,
+          },
+        ]}
+      >
+        <Pressable onPress={() => navigate('/')}>
+          <Text style={[styles.logo, { color: theme.text }]}>
+            Maré <Text style={{ color: theme.primary }}>LN</Text>
+          </Text>
+          <Text style={[styles.logoSubtitle, { color: theme.textMuted }]}>
+            EVENTOS DO LITORAL NORTE
+          </Text>
+        </Pressable>
 
-      {/* HEADER */}
-      <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-
-          <Pressable onPress={() => navigate('/')}>
-            <Text style={styles.logo}>
-              Maré <Text style={styles.logoLN}>LN</Text>
-            </Text>
-
-            <Text style={styles.logoSubtitle}>
-              EVENTOS DO LITORAL NORTE
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.menuButton}
-            onPress={() => setMenuOpen(!menuOpen)}
-            accessibilityRole="button"
-            accessibilityLabel="Abrir menu"
-          >
-            <Text style={styles.menuIcon}>
-              {menuOpen ? '✕' : '☰'}
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* MENU */}
-        {menuOpen && (
-          <View style={styles.menu}>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => navigate('/')}
-            >
-              <Text style={styles.menuText}>Início</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => navigate('/explorar')}
-            >
-              <Text style={styles.menuText}>Eventos</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => navigate('/login')}
-            >
-              <Text style={styles.menuText}>Entrar</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => navigate('/registro')}
-            >
-              <Text style={styles.menuText}>Cadastrar</Text>
-            </Pressable>
-          </View>
-        )}
+        <Pressable
+          onPress={toggleTheme}
+          style={[
+            styles.headerIconButton,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+          ]}
+          accessibilityLabel="Alternar modo escuro"
+        >
+          <Ionicons
+            name={isDark ? 'moon' : 'sunny-outline'}
+            size={22}
+            color={theme.primary}
+          />
+        </Pressable>
       </View>
 
-      {/* IMAGEM PRINCIPAL */}
       <ImageBackground
         source={{ uri: images.hero }}
         style={styles.hero}
         imageStyle={styles.photo}
       >
-        {/* OVERLAY CORRIGIDO */}
-        <View style={styles.overlay} />
+        <View
+          style={[
+            styles.overlay,
+            {
+              backgroundColor: isDark
+                ? 'rgba(10, 20, 18, 0.62)'
+                : 'rgba(10, 20, 18, 0.30)',
+            },
+          ]}
+        />
 
         <View style={styles.heroContent}>
-          <Text style={styles.title}>Maré LN</Text>
+          <View style={styles.tag}>
+            <View style={styles.tagDot} />
+            <Text style={styles.tagText}>LITORAL NORTE DE SÃO PAULO</Text>
+          </View>
 
-          <Text style={styles.subtitle}>
-            Levando você a descobrir o litoral
+          <Text style={styles.title}>
+            Descubra o que acontece{'\n'}
+            <Text style={styles.titleHighlight}>na nossa região.</Text>
           </Text>
 
           <Text style={styles.description}>
-            DESCUBRA EVENTOS E VIVA NOVAS EXPERIÊNCIAS
+            Eventos, cultura e experiências esperando por você.
           </Text>
         </View>
       </ImageBackground>
 
-      {/* ÁREA DE ACESSO */}
-      <View style={styles.accessSection}>
+      <View style={[styles.accessSection, { backgroundColor: theme.primary }]}>
         <Pressable
-          style={styles.accessButton}
+          style={[styles.accessButton, { backgroundColor: theme.surface }]}
           onPress={() => navigate('/login')}
         >
-          <Text style={styles.accessText}>Acessar</Text>
+          <Text style={[styles.accessText, { color: theme.primary }]}>
+            Acessar
+          </Text>
         </Pressable>
 
-        <View style={styles.accessLine} />
+        <View style={[styles.accessLine, { backgroundColor: theme.surface }]} />
       </View>
-
     </View>
   );
 }
@@ -124,166 +111,114 @@ export function HeroSection() {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
   },
-
-  // HEADER
-  headerWrapper: {
-    backgroundColor: '#EF5B18',
-    position: 'relative',
-    zIndex: 10,
-    elevation: 5,
-  },
-
   header: {
-    height: 62,
-    paddingHorizontal: 20,
+    minHeight: 76,
+    paddingHorizontal: 22,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    zIndex: 10,
+    elevation: 4,
   },
-
   logo: {
-    color: '#FFFFFF',
-    fontSize: 23,
-    fontWeight: '900',
-    letterSpacing: -0.7,
-  },
-
-  logoLN: {
-    color: '#FFD5B8',
-  },
-
-  logoSubtitle: {
-    color: '#FFFFFF',
-    fontSize: 7,
-    fontWeight: '700',
-    letterSpacing: 1.1,
-    marginTop: -2,
-  },
-
-  menuButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  menuIcon: {
     fontSize: 25,
-    color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '900',
+    letterSpacing: -1,
   },
-
-  menu: {
-    position: 'absolute',
-    top: 57,
-    right: 14,
-    width: 175,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingVertical: 8,
-    elevation: 8,
-    shadowColor: '#000000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    zIndex: 20,
+  logoSubtitle: {
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginTop: 1,
   },
-
-  menuItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 17,
-  },
-
-  menuText: {
-    color: '#444444',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-
-  // HERO
-  hero: {
-    height: 330,
-    justifyContent: 'center',
+  headerIconButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    borderWidth: 1,
     alignItems: 'center',
-    backgroundColor: '#F1C7A8',
+    justifyContent: 'center',
   },
-
+  hero: {
+    minHeight: 440,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#263D38',
+  },
   photo: {
     resizeMode: 'cover',
   },
-
-  // POSICIONAMENTO EXPLÍCITO: SEM absoluteFillObject
   overlay: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: 'rgba(255, 244, 230, 0.18)',
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(10, 20, 18, 0.62)',
   },
-
   heroContent: {
+    paddingHorizontal: 25,
+    paddingVertical: 65,
+    alignItems: 'flex-start',
+  },
+  tag: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    zIndex: 1,
+    gap: 8,
+    marginBottom: 23,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
-
-  title: {
-    color: '#EF5B18',
-    fontSize: 49,
-    fontWeight: '900',
-    letterSpacing: -1.5,
-    textAlign: 'center',
+  tagDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: '#FF9A55',
   },
-
-  subtitle: {
-    color: '#292524',
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginTop: 3,
-  },
-
-  description: {
+  tagText: {
     color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
-    letterSpacing: 1.2,
-    textAlign: 'center',
-    marginTop: 13,
+    letterSpacing: 1,
   },
-
-  // ACESSO
+  title: {
+    color: '#FFFFFF',
+    fontSize: 37,
+    lineHeight: 44,
+    fontWeight: '900',
+    letterSpacing: -1.2,
+  },
+  titleHighlight: {
+    color: '#FFAD72',
+  },
+  description: {
+    color: '#F1F1F1',
+    fontSize: 14,
+    lineHeight: 22,
+    marginTop: 15,
+    maxWidth: 300,
+  },
   accessSection: {
-    minHeight: 125,
-    backgroundColor: '#EC4165',
+    height: 145,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 22,
+    gap: 12,
   },
-
   accessButton: {
-    minWidth: 175,
-    height: 43,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
+    width: 156,
+    height: 42,
+    borderRadius: 13,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   accessText: {
-    color: '#EC4165',
-    fontSize: 15,
+    fontFamily: 'serif',
+    fontSize: 21,
     fontWeight: '900',
   },
-
   accessLine: {
-    width: 85,
-    height: 1,
-    backgroundColor: '#FFFFFF',
-    marginTop: 12,
+    width: 102,
+    height: 2,
+    borderRadius: 2,
   },
 });

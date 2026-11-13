@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Chaves de armazenamento
 const KEYS = {
-  user: '@mareln:user',
+  session: '@mareln:session',
   favorites: '@mareln:favorites',
   confirmedEvents: '@mareln:confirmed_events',
   theme: '@mareln:theme',
@@ -11,9 +11,32 @@ const KEYS = {
 } as const;
 
 export type StoredUser = {
+  id: number;
   name: string;
   email: string;
 };
+
+export type StoredSession = {
+  accessToken: string;
+  refreshToken: string;
+  user: StoredUser;
+};
+
+export async function readSession(): Promise<StoredSession | null> {
+  try {
+    const raw = await AsyncStorage.getItem(KEYS.session);
+    if (!raw) return null;
+    const session = JSON.parse(raw) as Partial<StoredSession>;
+    return session.accessToken && session.refreshToken && session.user && Number.isInteger(session.user.id) ? session as StoredSession : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function writeSession(session: StoredSession | null): Promise<void> {
+  if (!session) return AsyncStorage.removeItem(KEYS.session);
+  await AsyncStorage.setItem(KEYS.session, JSON.stringify(session));
+}
 
 export type StoredNotification = {
   id: number;
@@ -22,25 +45,6 @@ export type StoredNotification = {
   date: string;
   read: boolean;
 };
-
-// Leitura do usuário logado
-export async function readUser(): Promise<StoredUser | null> {
-  try {
-    const raw = await AsyncStorage.getItem(KEYS.user);
-    return raw ? (JSON.parse(raw) as StoredUser) : null;
-  } catch {
-    return null;
-  }
-}
-
-// Gravação do usuário logado
-export async function writeUser(user: StoredUser | null): Promise<void> {
-  if (!user) {
-    await AsyncStorage.removeItem(KEYS.user);
-    return;
-  }
-  await AsyncStorage.setItem(KEYS.user, JSON.stringify(user));
-}
 
 // Leitura dos eventos favoritos
 export async function readFavorites(): Promise<number[]> {

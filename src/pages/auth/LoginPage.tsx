@@ -16,15 +16,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Submissão do login
   const submit = async () => {
+    if (loading) return;
+    setErrorMessage('');
     try {
       setLoading(true);
       await signIn(email, password);
       router.replace('/dashboard' as any);
     } catch (error) {
-      Alert.alert('Não foi possível entrar', error instanceof Error ? error.message : 'Tente novamente.');
+      setErrorMessage(error instanceof Error ? error.message : 'Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -61,6 +64,8 @@ export default function LoginPage() {
 
       <PrimaryButton title="Entrar" onPress={submit} loading={loading} />
 
+      {errorMessage ? <Text accessibilityRole="alert" style={[styles.error, { color: theme.secondary }]}>{errorMessage}</Text> : null}
+
       <View style={styles.bottom}>
         <Text style={[styles.text, { color: theme.textMuted }]}>Ainda não tem conta?</Text>
         <Link
@@ -71,9 +76,6 @@ export default function LoginPage() {
         </Link>
       </View>
 
-      <Text style={[styles.note, { color: theme.textMuted }]}>
-        Modo demonstração: a autenticação é local e ainda não está conectada ao backend.
-      </Text>
     </AuthShell>
   );
 }
@@ -95,9 +97,5 @@ const styles = StyleSheet.create({
   link: {
     fontWeight: typography.fontWeight.heavy,
   },
-  note: {
-    fontSize: typography.fontSize.xs,
-    textAlign: 'center',
-    lineHeight: 15,
-  },
+  error: { textAlign: 'center', fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.bold },
 });

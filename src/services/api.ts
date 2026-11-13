@@ -11,6 +11,49 @@ const DEFAULT_HOST = Platform.select({
 
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || DEFAULT_HOST;
 
+export class ApiError extends Error {
+  constructor(message: string, readonly status?: number) { super(message); }
+}
+
+export type AuthUser = { id: number; nome: string; email: string };
+export type AuthResponse = { accessToken: string; refreshToken: string; usuario: AuthUser };
+let refreshInFlight: Promise<AuthResponse> | null = null;
+
+export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  let response: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 7000);
+  try {
+    response = await fetch(`${API_BASE_URL.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`, { ...options, signal: controller.signal, headers: { Accept: 'application/json', ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers } });
+  } catch {
+    throw new ApiError('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+  } finally {
+    clearTimeout(timeoutId);
+  }
+  const data: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = data && typeof data === 'object' && 'message' in data ? (data as { message?: unknown }).message : null;
+    throw new ApiError(Array.isArray(message) ? message.join(', ') : typeof message === 'string' ? message : `Erro na comunicação com a API (${response.status}).`, response.status);
+  }
+  return data as T;
+}
+
+export async function authenticatedRequest<T>(path: string, accessToken: string, refreshToken: string, options: RequestInit = {}, onRefresh: (tokens: AuthResponse) => Promise<void>): Promise<T> {
+  const execute = (token: string) => apiRequest<T>(path, { ...options, headers: { ...options.headers, Authorization: `Bearer ${token}` } });
+  try { return await execute(accessToken); } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401) throw error;
+    if (!refreshInFlight) refreshInFlight = apiRequest<AuthResponse>('auth/refresh', { method: 'POST', body: JSON.stringify({ refreshToken }) }).finally(() => { refreshInFlight = null; });
+    try {
+      const renewed = await refreshInFlight;
+      await onRefresh(renewed);
+      return await execute(renewed.accessToken);
+    } catch (refreshError) {
+      if (refreshError instanceof ApiError && refreshError.status === 401) throw new ApiError('Sua sessão expirou. Entre novamente.', 401);
+      throw refreshError;
+    }
+  }
+}
+
 // Modelo retornado pela API
 export interface BackendEvento {
   id: number;

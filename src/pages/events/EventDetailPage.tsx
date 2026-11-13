@@ -1,6 +1,6 @@
 // Tela de detalhes do evento selecionado
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Linking, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { PrimaryButton } from '@/components/shared/PrimaryButton';
@@ -82,8 +82,10 @@ export default function EventDetailPage() {
 
   // Abrir no aplicativo de mapa
   const openMap = () => {
-    const query = encodeURIComponent(`${event.place}, ${event.city}, SP`);
-    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
+    router.push({
+      pathname: '/mapa',
+      params: { eventId: String(event.id) },
+    });
   };
 
   return (
